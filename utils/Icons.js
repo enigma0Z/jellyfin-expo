@@ -6,6 +6,7 @@
 import { Platform } from 'react-native';
 
 export const getIconName = (name = '') => {
+	return name
 	if (name) {
 		return Platform.OS === 'ios' ? `ios-${name}` : `md-${name}`;
 	}
