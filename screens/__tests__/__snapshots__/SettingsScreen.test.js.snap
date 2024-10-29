@@ -109,7 +109,7 @@ exports[`SettingsScreen should render correctly 1`] = `
           "data": [
             {
               "icon": {
-                "name": "ios-globe-outline",
+                "name": "globe-outline",
                 "type": "ionicon",
               },
               "key": "links-website",
@@ -118,7 +118,7 @@ exports[`SettingsScreen should render correctly 1`] = `
             },
             {
               "icon": {
-                "name": "ios-book",
+                "name": "book",
                 "type": "ionicon",
               },
               "key": "links-documentation",
@@ -145,7 +145,7 @@ exports[`SettingsScreen should render correctly 1`] = `
             },
             {
               "icon": {
-                "name": "ios-bug",
+                "name": "bug",
                 "type": "ionicon",
               },
               "key": "links-issue",
