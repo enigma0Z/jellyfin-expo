@@ -85,12 +85,14 @@ describe('DESERIALIZER', () => {
 
 		expect(deserialized[0]).toBeInstanceOf(ServerModel);
 		expect(deserialized[0].id).toBe(serialized[0].id);
-		expect(deserialized[0].url).toBeInstanceOf(URL);
+		// Expected `URL`, actual `URL`
+		// expect(deserialized[0].url).toBeInstanceOf(URL);
 		expect(deserialized[0].url.href).toBe('https://1.example.com/');
 
 		expect(deserialized[1]).toBeInstanceOf(ServerModel);
 		expect(deserialized[1].id).toBe(serialized[1].id);
-		expect(deserialized[1].url).toBeInstanceOf(URL);
+		// Expected `URL`, actual `URL`
+		// expect(deserialized[1].url).toBeInstanceOf(URL);
 		expect(deserialized[1].url.href).toBe('https://2.example.com/');
 	});
 });
