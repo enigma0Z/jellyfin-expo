@@ -3,10 +3,12 @@
 exports[`DownloadScreen should render correctly 1`] = `
 <RNCSafeAreaView
   edges={
-    Array [
-      "right",
-      "left",
-    ]
+    Object {
+      "bottom": "off",
+      "left": "additive",
+      "right": "additive",
+      "top": "off",
+    }
   }
   style={
     Object {
@@ -69,12 +71,13 @@ exports[`DownloadScreen should render correctly 1`] = `
     onScrollEndDrag={[Function]}
     removeClippedSubviews={false}
     renderItem={[Function]}
-    scrollEventThrottle={50}
+    scrollEventThrottle={0.0001}
     stickyHeaderIndices={Array []}
     viewabilityConfigCallbackPairs={Array []}
   >
     <View>
       <View
+        onFocusCapture={[Function]}
         onLayout={[Function]}
         style={null}
       >
@@ -205,6 +208,7 @@ exports[`DownloadScreen should render correctly 1`] = `
         </View>
       </View>
       <View
+        onFocusCapture={[Function]}
         onLayout={[Function]}
         style={null}
       >

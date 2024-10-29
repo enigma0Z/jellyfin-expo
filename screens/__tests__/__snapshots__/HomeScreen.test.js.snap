@@ -3,10 +3,12 @@
 exports[`HomeScreen should render ErrorView when invalid server exists 1`] = `
 <RNCSafeAreaView
   edges={
-    Array [
-      "right",
-      "left",
-    ]
+    Object {
+      "bottom": "off",
+      "left": "additive",
+      "right": "additive",
+      "top": "off",
+    }
   }
   style={
     Object {
@@ -107,10 +109,12 @@ exports[`HomeScreen should render ErrorView when invalid server exists 1`] = `
 exports[`HomeScreen should render correctly 1`] = `
 <RNCSafeAreaView
   edges={
-    Array [
-      "right",
-      "left",
-    ]
+    Object {
+      "bottom": "off",
+      "left": "additive",
+      "right": "additive",
+      "top": "off",
+    }
   }
   style={
     Object {
@@ -167,11 +171,14 @@ exports[`HomeScreen should render correctly 1`] = `
     }
   />
   <View
-    pointerEvents="box-none"
     style={
-      Object {
-        "overflow": "hidden",
-      }
+      Array [
+        Object {
+          "overflow": "hidden",
+          "pointerEvents": "box-none",
+        },
+        undefined,
+      ]
     }
   >
     <ViewManagerAdapter_ExpoVideoView
@@ -181,22 +188,32 @@ exports[`HomeScreen should render correctly 1`] = `
       onLoadStart={[Function]}
       onReadyForDisplay={[Function]}
       onStatusUpdate={[Function]}
-      proxiedProperties={
-        Object {
-          "resizeMode": "mock",
-          "source": undefined,
-          "status": Object {},
-          "useNativeControls": true,
-        }
-      }
+      resizeMode="mock"
+      status={Object {}}
       style={
-        Object {
-          "bottom": 0,
-          "left": 0,
-          "position": "absolute",
-          "right": 0,
-          "top": 0,
-        }
+        Array [
+          Object {
+            "bottom": 0,
+            "left": 0,
+            "position": "absolute",
+            "right": 0,
+            "top": 0,
+          },
+          undefined,
+        ]
+      }
+      useNativeControls={true}
+      videoStyle={
+        Array [
+          Object {
+            "bottom": 0,
+            "left": 0,
+            "position": "absolute",
+            "right": 0,
+            "top": 0,
+          },
+          undefined,
+        ]
       }
     />
     <Image

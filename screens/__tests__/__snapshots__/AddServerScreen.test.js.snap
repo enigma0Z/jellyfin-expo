@@ -17,11 +17,12 @@ exports[`AddServerScreen should render correctly 1`] = `
 >
   <RNCSafeAreaView
     edges={
-      Array [
-        "right",
-        "bottom",
-        "left",
-      ]
+      Object {
+        "bottom": "additive",
+        "left": "additive",
+        "right": "additive",
+        "top": "off",
+      }
     }
     style={
       Object {
@@ -93,6 +94,14 @@ exports[`AddServerScreen should render correctly 1`] = `
               accessibilityState={
                 Object {
                   "disabled": false,
+                }
+              }
+              accessibilityValue={
+                Object {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
