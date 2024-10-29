@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { action, decorate, observable } from 'mobx';
+import { action, observable, makeObservable } from 'mobx';
 import { format } from 'mobx-sync-lite';
 import { task } from 'mobx-task';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,33 +18,35 @@ export const DESERIALIZER = data => data.map(server => {
 });
 
 export default class ServerStore {
-	servers = []
+    servers = []
 
-	addServer(server) {
+    constructor() {
+        makeObservable(this, {
+            servers: [
+                format(DESERIALIZER),
+                observable
+            ],
+            addServer: action,
+            removeServer: action,
+            reset: action
+        });
+    }
+
+    addServer(server) {
 		this.servers.push(new ServerModel(uuidv4(), server.url));
 	}
 
-	removeServer(index) {
+    removeServer(index) {
 		this.servers.splice(index, 1);
 	}
 
-	reset() {
+    reset() {
 		this.servers = [];
 	}
 
-	fetchInfo = task(async () => {
+    fetchInfo = task(async () => {
 		await Promise.all(
 			this.servers.map(server => server.fetchInfo())
 		);
 	})
 }
-
-decorate(ServerStore, {
-	servers: [
-		format(DESERIALIZER),
-		observable
-	],
-	addServer: action,
-	removeServer: action,
-	reset: action
-});

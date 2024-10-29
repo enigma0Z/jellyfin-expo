@@ -9,7 +9,7 @@ import 'react-native-get-random-values';
 
 import { Jellyfin } from '@jellyfin/sdk';
 import Constants from 'expo-constants';
-import { action, computed, decorate, observable } from 'mobx';
+import { action, computed, observable, makeObservable } from 'mobx';
 import { ignore } from 'mobx-sync-lite';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -21,37 +21,49 @@ import ServerStore from './ServerStore';
 import SettingStore from './SettingStore';
 
 export default class RootStore {
-	/**
+    /**
 	 * Generate a random unique device id
 	 */
-	deviceId = uuidv4()
+    deviceId = uuidv4()
 
-	/**
+    /**
 	 * Has the store been loaded from storage
 	 */
-	storeLoaded = false
+    storeLoaded = false
 
-	/**
+    /**
 	 * Is the fullscreen interface active
 	 */
-	isFullscreen = false
+    isFullscreen = false
 
-	/**
+    /**
 	 * Does the webview require a reload
 	 */
-	isReloadRequired = false
+    isReloadRequired = false
 
-	/**
+    /**
 	 * Was the native player closed manually
 	 */
-	didPlayerCloseManually = true
+    didPlayerCloseManually = true
 
-	downloadStore = new DownloadStore()
-	mediaStore = new MediaStore()
-	serverStore = new ServerStore()
-	settingStore = new SettingStore()
+    downloadStore = new DownloadStore()
+    mediaStore = new MediaStore()
+    serverStore = new ServerStore()
+    settingStore = new SettingStore()
 
-	get sdk() {
+    constructor() {
+        makeObservable(this, {
+            deviceId: observable,
+            storeLoaded: [ ignore, observable ],
+            isFullscreen: [ ignore, observable ],
+            isReloadRequired: [ ignore, observable ],
+            didPlayerCloseManually: [ ignore, observable ],
+            sdk: computed,
+            reset: action
+        });
+    }
+
+    get sdk() {
 		return new Jellyfin({
 			clientInfo: {
 				name: getAppName(),
@@ -64,7 +76,7 @@ export default class RootStore {
 		});
 	}
 
-	reset() {
+    reset() {
 		this.deviceId = uuidv4();
 
 		this.isFullscreen = false;
@@ -79,13 +91,3 @@ export default class RootStore {
 		this.storeLoaded = true;
 	}
 }
-
-decorate(RootStore, {
-	deviceId: observable,
-	storeLoaded: [ ignore, observable ],
-	isFullscreen: [ ignore, observable ],
-	isReloadRequired: [ ignore, observable ],
-	didPlayerCloseManually: [ ignore, observable ],
-	sdk: computed,
-	reset: action
-});
