@@ -5,7 +5,7 @@
  */
 
 import * as FileSystem from 'expo-file-system';
-import { computed, decorate, observable } from 'mobx';
+import { computed, decorate, makeAutoObservable, makeObservable, observable } from 'mobx';
 import { ignore } from 'mobx-sync-lite';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,6 +42,8 @@ export default class DownloadModel {
 		this.title = title;
 		this.filename = filename;
 		this.downloadUrl = downloadUrl;
+
+		makeAutoObservable(this)
 	}
 
 	get key() {
@@ -76,21 +78,3 @@ export default class DownloadModel {
 		return new URL(`${this.serverUrl}Videos/${this.itemId}/stream.mp4?${streamParams.toString()}`);
 	}
 }
-
-decorate(DownloadModel, {
-	isComplete: observable,
-	isDownloading: [ ignore, observable ],
-	isNew: observable,
-	apiKey: observable,
-	itemId: observable,
-	sessionId: observable,
-	serverId: observable,
-	serverUrl: observable,
-	title: observable,
-	filename: observable,
-	downloadUrl: observable,
-	key: computed,
-	localFilename: computed,
-	localPath: computed,
-	uri: computed
-});

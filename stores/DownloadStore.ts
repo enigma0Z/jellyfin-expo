@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { action, computed, decorate, observable } from 'mobx';
+import { action, computed, decorate, makeAutoObservable, observable } from 'mobx';
 import { format } from 'mobx-sync-lite';
 
 import DownloadModel from '../models/DownloadModel';
@@ -32,6 +32,10 @@ export const DESERIALIZER = (data: unknown) => {
 export default class DownloadStore {
 	downloads = new Map<string, DownloadModel>();
 
+	constructor() {
+		makeAutoObservable(this)
+	}
+
 	get newDownloadCount() {
 		return Array.from(this.downloads.values())
 			.filter(d => d.isNew)
@@ -49,13 +53,3 @@ export default class DownloadStore {
 		this.downloads = new Map();
 	}
 }
-
-decorate(DownloadStore, {
-	downloads: [
-		format(DESERIALIZER),
-		observable
-	],
-	newDownloadCount: computed,
-	add: action,
-	reset: action
-});

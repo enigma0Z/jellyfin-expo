@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { action, computed, decorate, observable } from 'mobx';
+import { action, computed, decorate, makeAutoObservable, observable } from 'mobx';
 import { ignore } from 'mobx-sync-lite';
 
 import { ticksToMs } from '../utils/Time';
@@ -54,6 +54,10 @@ export default class MediaStore {
 	 */
 	shouldStop = false
 
+	constructor() {
+		makeAutoObservable(this)
+	}
+
 	get positionMillis() {
 		return ticksToMs(this.positionTicks);
 	}
@@ -70,17 +74,3 @@ export default class MediaStore {
 		this.shouldStop = false;
 	}
 }
-
-decorate(MediaStore, {
-	type: [ ignore, observable ],
-	uri: [ ignore, observable ],
-	isFinished: [ ignore, observable ],
-	isLocalFile: [ ignore, observable ],
-	isPlaying: [ ignore, observable ],
-	positionTicks: [ ignore, observable ],
-	positionMillis: computed,
-	backdropUri: [ ignore, observable ],
-	shouldPlayPause: [ ignore, observable ],
-	shouldStop: [ ignore, observable ],
-	reset: action
-});

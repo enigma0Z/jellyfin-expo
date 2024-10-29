@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { action, decorate, observable } from 'mobx';
+import { action, decorate, makeAutoObservable, observable } from 'mobx';
 import { format } from 'mobx-sync-lite';
 import { task } from 'mobx-task';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +19,10 @@ export const DESERIALIZER = data => data.map(server => {
 
 export default class ServerStore {
 	servers = []
+
+	constructor() {
+		makeAutoObservable(this)
+	}
 
 	addServer(server) {
 		this.servers.push(new ServerModel(uuidv4(), server.url));
@@ -38,13 +42,3 @@ export default class ServerStore {
 		);
 	})
 }
-
-decorate(ServerStore, {
-	servers: [
-		format(DESERIALIZER),
-		observable
-	],
-	addServer: action,
-	removeServer: action,
-	reset: action
-});

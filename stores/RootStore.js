@@ -9,7 +9,7 @@ import 'react-native-get-random-values';
 
 import { Jellyfin } from '@jellyfin/sdk';
 import Constants from 'expo-constants';
-import { action, computed, decorate, observable } from 'mobx';
+import { action, computed, decorate, makeAutoObservable, observable } from 'mobx';
 import { ignore } from 'mobx-sync-lite';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -51,6 +51,10 @@ export default class RootStore {
 	serverStore = new ServerStore()
 	settingStore = new SettingStore()
 
+	constructor() {
+		makeAutoObservable(this)
+	}
+
 	get sdk() {
 		return new Jellyfin({
 			clientInfo: {
@@ -79,13 +83,3 @@ export default class RootStore {
 		this.storeLoaded = true;
 	}
 }
-
-decorate(RootStore, {
-	deviceId: observable,
-	storeLoaded: [ ignore, observable ],
-	isFullscreen: [ ignore, observable ],
-	isReloadRequired: [ ignore, observable ],
-	didPlayerCloseManually: [ ignore, observable ],
-	sdk: computed,
-	reset: action
-});

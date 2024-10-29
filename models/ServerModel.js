@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-import { action, autorun, computed, decorate, observable } from 'mobx';
+import { action, autorun, computed, decorate, makeAutoObservable, observable } from 'mobx';
 import { ignore } from 'mobx-sync-lite';
 import { task } from 'mobx-task';
 
@@ -26,6 +26,8 @@ export default class ServerModel {
 		autorun(() => {
 			this.urlString = this.parseUrlString;
 		});
+
+		makeAutoObservable(this)
 	}
 
 	get name() {
@@ -52,15 +54,3 @@ export default class ServerModel {
 			});
 	})
 }
-
-decorate(ServerModel, {
-	id: observable,
-	url: observable,
-	online: [
-		ignore,
-		observable
-	],
-	info: observable,
-	name: computed,
-	parseUrlString: computed
-});
