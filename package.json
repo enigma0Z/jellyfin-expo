@@ -57,7 +57,7 @@
     "expo-status-bar": "~1.12.1",
     "expo-web-browser": "~13.0.3",
     "i18next": "21.10.0",
-    "mobx": "5.15.7",
+    "mobx": "6.13.5",
     "mobx-react-lite": "2.2.2",
     "mobx-sync-lite": "3.1.0",
     "mobx-task": "2.0.1",
