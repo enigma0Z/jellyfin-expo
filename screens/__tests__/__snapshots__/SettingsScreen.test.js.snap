@@ -175,7 +175,7 @@ exports[`SettingsScreen should render correctly 1`] = `
     extraData={
       {
         "activeServer": undefined,
-        "isFetching": undefined,
+        "isFetching": true,
       }
     }
     getItem={[Function]}

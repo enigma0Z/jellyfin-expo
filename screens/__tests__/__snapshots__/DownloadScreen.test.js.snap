@@ -24,7 +24,7 @@ exports[`DownloadScreen should render correctly 1`] = `
       }
     }
     data={
-      [
+      Array [
         DownloadModel {
           "apiKey": "api-key",
           "downloadUrl": "https://example.com/download",

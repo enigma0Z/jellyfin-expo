@@ -1,14 +1,17 @@
 /**
+ * Copyright (c) 2025 Jellyfin Contributors
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 import compareVersions from 'compare-versions';
-import Constants from 'expo-constants';
+import { nativeApplicationVersion } from 'expo-application';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import React, { useState } from 'react';
-import { BackHandler, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, BackHandler, Platform } from 'react-native';
 
 import MediaTypes from '../constants/MediaTypes';
 import { useStores } from '../hooks/useStores';
@@ -22,6 +25,7 @@ import RefreshWebView from './RefreshWebView';
 const NativeShellWebView = (props, ref) => {
 	const { rootStore, downloadStore, serverStore, mediaStore, settingStore } = useStores();
 	const [ isRefreshing, setIsRefreshing ] = useState(false);
+	const { t } = useTranslation();
 
 	const server = serverStore.servers[settingStore.activeServer];
 	const isPluginSupported = !!server.info?.Version && compareVersions.compare(server.info.Version, '10.7', '>=');
@@ -29,7 +33,7 @@ const NativeShellWebView = (props, ref) => {
 	const injectedJavaScript = `
 window.ExpoAppInfo = {
 	appName: '${getAppName()}',
-	appVersion: '${Constants.nativeAppVersion}',
+	appVersion: '${nativeApplicationVersion}',
 	deviceId: '${rootStore.deviceId}',
 	deviceName: '${getSafeDeviceName().replace(/'/g, '\\\'')}'
 };
@@ -87,12 +91,18 @@ true;
 				case 'disableFullscreen':
 					rootStore.set({ isFullscreen: false });
 					break;
-				case 'downloadFile':
+				case 'downloadFile': {
 					console.log('Download item', data);
-					/* eslint-disable no-case-declarations */
+					if (data.item.item?.MediaType !== MediaTypes.Video) {
+						Alert.alert(
+							t('alerts.downloadUnsupported.title'),
+							t('alerts.downloadUnsupported.description')
+						);
+						break;
+					}
+
 					const url = new URL(data.item.url);
 					const apiKey = url.searchParams.get('api_key');
-					/* eslint-enable no-case-declarations */
 					downloadStore.add(new DownloadModel(
 						data.item.itemId,
 						data.item.serverId,
@@ -103,6 +113,7 @@ true;
 						data.item.url
 					));
 					break;
+				}
 				case 'openUrl':
 					console.log('Opening browser for external url', data.url);
 					openBrowser(data.url);

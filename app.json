@@ -11,10 +11,10 @@
     "orientation": "default",
     "primaryColor": "#00a4dc",
     "backgroundColor": "#101010",
-    "icon": "./assets/images/icon.png",
+    "icon": "./node_modules/@jellyfin/ux-ios/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./node_modules/@jellyfin/ux-ios/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#101010"
     },
@@ -26,10 +26,13 @@
       "**/*"
     ],
     "ios": {
-      "buildNumber": "5.6.0.0",
+      "buildNumber": "1.7.0.0",
       "supportsTablet": true,
       "requireFullScreen": false,
       "bundleIdentifier": "org.jellyfin.expo",
+      "entitlements": {
+        "com.apple.developer.device-information.user-assigned-device-name": true
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera.",
         "UIBackgroundModes": [

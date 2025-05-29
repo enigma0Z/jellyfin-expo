@@ -16,13 +16,12 @@ describe('RootStore', () => {
 	it('should initialize with default values', () => {
 		const store = renderHook(() => useRootStore((state) => state)).result.current;
 
-		expect(store.storeLoaded).toBe(false);
 		expect(store.isFullscreen).toBe(false);
 		expect(store.isReloadRequired).toBe(false);
 		expect(store.didPlayerCloseManually).toBe(true);
 
-		expect(store.getApi()).toBeInstanceOf(Jellyfin);
-		expect(store.getApi().deviceInfo.id).toBe(store.deviceId);
+		expect(store.getSdk()).toBeInstanceOf(Jellyfin);
+		expect(store.getSdk().deviceInfo.id).toBe(store.deviceId);
 	});
 
 	it('should reset to the default values', () => {
@@ -36,7 +35,6 @@ describe('RootStore', () => {
 			});
 		});
 
-		expect(storeHook.result.current.storeLoaded).toBe(false);
 		expect(storeHook.result.current.isFullscreen).toBe(true);
 		expect(storeHook.result.current.isReloadRequired).toBe(true);
 		expect(storeHook.result.current.didPlayerCloseManually).toBe(false);
@@ -45,7 +43,6 @@ describe('RootStore', () => {
 			storeHook.result.current.reset();
 		});
 
-		expect(storeHook.result.current.storeLoaded).toBe(true);
 		expect(storeHook.result.current.isFullscreen).toBe(false);
 		expect(storeHook.result.current.isReloadRequired).toBe(false);
 		expect(storeHook.result.current.didPlayerCloseManually).toBe(true);
