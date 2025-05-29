@@ -30,7 +30,7 @@
         "errors": {
             "offline": {
                 "description": "Fehler bei der Verbindungsaufnahme mit dem Jellyfin-Server.",
-                "heading": "Ist der Server offline?"
+                "heading": "Server offline?"
             },
             "http": {
                 "description": "Der Jellyfin-Server hat einen Fehler zurückgegeben.",
@@ -70,7 +70,8 @@
         "source": "Quellcode",
         "feature": "Neue Funktion vorschlagen",
         "issue": "Fehler melden",
-        "translate": "Übersetzen"
+        "translate": "Übersetzen",
+        "help": "Hilfe erhalten"
     },
     "alerts": {
         "deleteServer": {

@@ -1,23 +1,26 @@
 /**
+ * Copyright (c) 2025 Jellyfin Contributors
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { ticksToMs } from '../utils/Time';
 
+import { logger } from './middleware/logger';
+
 type State = {
 	/** The media type being played */
-	type?: string,
+	type: string | null,
 
 	/** URI of the current media file */
-	uri?: string,
+	uri: string | null,
 
 	/** URI of the backdrop image of the current media item */
-	backdropUri?: string,
+	backdropUri: string | null,
 
 	/** Current playback position (in ticks) */
 	positionTicks: number,
@@ -50,6 +53,8 @@ type Actions = {
 
 export type MediaStore = State & Actions
 
+const STORE_NAME = 'MediaStore';
+
 const initialState: State = {
 	type: null,
 	uri: null,
@@ -62,23 +67,19 @@ const initialState: State = {
 	shouldStop: false
 };
 
-const persistKeys = Object.keys(initialState);
-
 export const useMediaStore = create<State & Actions>()(
-	persist(
+	logger(
 		(_set, _get) => ({
 			...initialState,
-			set: (state) => { _set({ ...state }); },
+			set: state => _set(prev => ({
+				...prev,
+				...state
+			})),
 			getPositionMillis: () => ticksToMs(_get().positionTicks),
 			reset: () => {
 				_set({ ...initialState });
 			}
-		}), {
-			name: 'MediaStore',
-			storage: createJSONStorage(() => AsyncStorage),
-			partialize: (state) => Object.fromEntries(
-				Object.entries(state).filter(([ key ]) => persistKeys.includes(key))
-			)
-		}
+		}),
+		STORE_NAME
 	)
 );

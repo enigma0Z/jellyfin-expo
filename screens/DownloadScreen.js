@@ -13,6 +13,7 @@ import { Button, ThemeContext } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DownloadListItem from '../components/DownloadListItem';
+import ErrorView from '../components/ErrorView';
 import MediaTypes from '../constants/MediaTypes';
 import { useStores } from '../hooks/useStores';
 
@@ -34,7 +35,7 @@ const DownloadScreen = () => {
 			// TODO: Add user messaging on errors
 			try {
 				await FileSystem.deleteAsync(download.localPath);
-				downloadStore.downloads.delete(download.key);
+				downloadStore.delete(download);
 				console.log('[DownloadScreen] download "%s" deleted', download.title);
 			} catch (e) {
 				console.error('[DownloadScreen] Failed to delete download', e);
@@ -43,18 +44,22 @@ const DownloadScreen = () => {
 
 		function onDeleteItems(downloads) {
 			Alert.alert(
-				'Delete Downloads',
-				'These items will be permanently deleted from this device.',
+				t('alerts.deleteDownloads.title'),
+				t('alerts.deleteDownloads.description'),
 				[
 					{
 						text: t('common.cancel'),
 						onPress: exitEditMode
 					},
 					{
-						text: `Delete ${downloads.length} Downloads`,
-						onPress: async () => {
-							await Promise.all(downloads.map(deleteItem));
-							exitEditMode();
+						text: t('alerts.deleteDownloads.confirm', { downloadCount: downloads.length }),
+						onPress: () => {
+							// eslint-disable-next-line promise/catch-or-return
+							Promise.all(downloads.map(deleteItem))
+								.catch(err => {
+									console.error('[DownloadScreen] failed to delete download', err);
+								})
+								.finally(exitEditMode);
 						},
 						style: 'destructive'
 					}
@@ -101,8 +106,9 @@ const DownloadScreen = () => {
 		useCallback(() => {
 			downloadStore.downloads
 				.forEach(download => {
-					if (download.isNew) {
+					if (download.isNew && download.isNew !== !download.isComplete) {
 						download.isNew = !download.isComplete;
+						downloadStore.update(download);
 					}
 				});
 		}, [ downloadStore.downloads ])
@@ -120,35 +126,46 @@ const DownloadScreen = () => {
 			}}
 			edges={[ 'right', 'left' ]}
 		>
-			<FlatList
-				data={downloadList}
-				extraData={downloadStore.downloads}
-				renderItem={({ item, index }) => (
-					<DownloadListItem
-						item={item}
-						index={index}
-						isEditMode={isEditMode}
-						isSelected={selectedItems.includes(item)}
-						onSelect={() => {
-							if (selectedItems.includes(item)) {
-								setSelectedItems(selectedItems.filter(selected => selected !== item));
-							} else {
-								setSelectedItems([ ...selectedItems, item ]);
-							}
-						}}
-						onPlay={async () => {
-							item.isNew = false;
-							mediaStore.set({
-								isLocalFile: true,
-								type: MediaTypes.Video,
-								uri: item.uri
-							});
-						}}
-					/>
-				)}
-				keyExtractor={(item, index) => `download-${index}-${item.key}`}
-				contentContainerStyle={styles.listContainer}
-			/>
+			{downloadStore.downloads.size > 0 ? (
+				<FlatList
+					data={Array.from(downloadStore.downloads.values())}
+					extraData={downloadStore.downloads}
+					renderItem={({ item, index }) => (
+						<DownloadListItem
+							item={item}
+							index={index}
+							isEditMode={isEditMode}
+							isSelected={selectedItems.includes(item)}
+							onSelect={() => {
+								if (selectedItems.includes(item)) {
+									setSelectedItems(selectedItems.filter(selected => selected !== item));
+								} else {
+									setSelectedItems([ ...selectedItems, item ]);
+								}
+							}}
+							onPlay={async () => {
+								item.isNew = false;
+								mediaStore.set({
+									isLocalFile: true,
+									type: MediaTypes.Video,
+									uri: item.uri
+								});
+							}}
+						/>
+					)}
+					keyExtractor={(item, index) => `download-${index}-${item.key}`}
+					contentContainerStyle={styles.listContainer}
+				/>
+			) : (
+				<ErrorView
+					icon={{
+						name: 'download-circle-outline',
+						type: 'material-community'
+					}}
+					heading={t('downloads.noDownloads.heading')}
+					message={t('downloads.noDownloads.description')}
+				/>
+			)}
 		</SafeAreaView>
 	);
 };

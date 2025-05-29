@@ -1,65 +1,58 @@
 /**
+ * Copyright (c) 2025 Jellyfin Contributors
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { v4 as uuidv4 } from 'uuid';
-
 import { create } from 'zustand';
-import { createJSONStorage, persist, PersistStorage, StorageValue } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import ServerModel from '../models/ServerModel';
+
+import { logger } from './middleware/logger';
 
 type State = {
 	servers: ServerModel[],
 }
 
+interface ServerInput {
+	url: URL
+}
+
 type Actions = {
-	set: (v: Partial<State>) => void,
-	addServer: (v: ServerModel) => void,
-	removeServer: (v: number) => void,
+	set: (value: Partial<State>) => void,
+	addServer: (input: ServerInput) => void,
+	removeServer: (index: number) => void,
 	reset: () => void,
-	fetchInfo: () => void,
+	fetchInfo: () => Promise<void>,
 }
 
 export type ServerStore = State & Actions
 
-export function deserializer(str: string): Promise<StorageValue<State>> {
-	const data: any = JSON.parse(str).state;
+export const STORE_NAME = 'ServerStore';
 
-	const deserialized: ServerModel[] = [];
-
-	for (const value of data.servers) {
-		// Migrate from old url format
-		// TODO: Remove migration in next minor release
-		const url = value.url.href || value.url;
-
-		deserialized.push(new ServerModel(value.id, new URL(url), value.info));
+export const reviver = (key: string, value: unknown) => {
+	// Convert the url to a URL object
+	if (key === 'url') {
+		return new URL(value as string);
 	}
 
-	return {
-		state: {
-			servers: deserialized
-		}
-	};
-}
-
-// This is needed to properly deserialize URL objects from their strings
-const storage: PersistStorage<State> = {
-	getItem: async (name: string): Promise<StorageValue<State>> => {
-		const data = await AsyncStorage.getItem(name);
-		return deserializer(data);
-	},
-	setItem: (name: string, value: StorageValue<State>) => {
-		const serialized = JSON.stringify({
-			servers: value.state.servers
-		});
-		AsyncStorage.setItem(name, serialized);
-	},
-	removeItem: function(name: string): void {
-		AsyncStorage.removeItem(name);
+	// Array entries will be referenced by the index
+	// Convert each to a ServerModel
+	if (Number.isInteger(parseFloat(key))) {
+		const server = value as ServerModel;
+		return new ServerModel(
+			server.id,
+			server.url,
+			server.info
+		);
 	}
+
+	return value;
 };
 
 const initialState: State = {
@@ -69,33 +62,39 @@ const initialState: State = {
 const persistKeys = Object.keys(initialState);
 
 export const useServerStore = create<State & Actions>()(
-	persist(
-		(_set, _get) => ({
-			...initialState,
-			set: (state) => { _set({ ...state }); },
-			addServer: (server) => {
-				const servers = _get().servers;
-				servers.push(new ServerModel(uuidv4(), server.url));
-				_set({ servers });
-			},
-			removeServer: (index) => {
-				const servers = _get().servers;
-				servers.splice(index, 1);
-				_set({ servers });
-			},
-			reset: () => _set({ servers: [] }),
-			fetchInfo: async () => {
-				await Promise.all(
-					_get().servers.map(server => server.fetchInfo())
-				);
+	logger(
+		persist(
+			(_set, _get) => ({
+				...initialState,
+				set: state => _set(prev => ({
+					...prev,
+					...state
+				})),
+				addServer: server => _set(state => ({
+					servers: [
+						...state.servers,
+						new ServerModel(uuidv4(), server.url)
+					]
+				})),
+				removeServer: index => _set(state => ({
+					servers: state.servers.filter((_, i) => i !== index)
+				})),
+				reset: () => _set({ servers: [] }),
+				fetchInfo: async () => {
+					await Promise.all(
+						_get().servers.map(server => server.fetchInfo())
+					);
+					// notify subscribers
+					_set(state => ({ servers: [ ...state.servers ] }));
+				}
+			}), {
+				name: STORE_NAME,
+				storage: createJSONStorage(() => AsyncStorage, { reviver }),
+				partialize: state => Object.fromEntries(
+					Object.entries(state).filter(([ key ]) => persistKeys.includes(key))
+				)
 			}
-		}), {
-			name: 'ServerStore',
-			// storage: createJSONStorage(() => AsyncStorage),
-			storage: storage,
-			partialize: (state) => Object.fromEntries(
-				Object.entries(state).filter(([ key ]) => persistKeys.includes(key))
-			)
-		}
+		),
+		STORE_NAME
 	)
 );

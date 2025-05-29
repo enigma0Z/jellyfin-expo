@@ -1,14 +1,16 @@
 /**
+ * Copyright (c) 2025 Jellyfin Contributors
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 import { ThemeContext } from 'react-native-elements';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AudioPlayer from '../components/AudioPlayer';
 import ErrorView from '../components/ErrorView';
@@ -119,15 +121,18 @@ const HomeScreen = () => {
 		}
 	}, [ httpErrorStatus ]);
 
-	// When not in fullscreen, the top adjustment is handled by the spacer View for iOS
-	const safeAreaEdges = [ 'right', 'left' ];
-	if (Platform.OS !== 'ios' || rootStore.isFullscreen) {
-		safeAreaEdges.push('top');
+	// NOTE: We use a standard View and insets to workaround https://github.com/AppAndFlow/react-native-safe-area-context/issues/204
+	const safeAreaPadding = {};
+	if (!rootStore.isFullscreen) {
+		safeAreaPadding.paddingLeft = insets.left;
+		safeAreaPadding.paddingRight = insets.right;
+
+		// When not in fullscreen, the top adjustment is handled by the spacer View for iOS
+		if (Platform.OS !== 'ios') {
+			safeAreaPadding.paddingTop = insets.top;
+		}
 	}
-	// Bottom spacer is handled by tab bar except in fullscreen
-	if (rootStore.isFullscreen) {
-		safeAreaEdges.push('bottom');
-	}
+
 	// Hide webview until loaded
 	const webviewStyle = (isLoading || httpErrorStatus) ? StyleSheet.compose(styles.container, styles.loading) : styles.container;
 
@@ -137,12 +142,12 @@ const HomeScreen = () => {
 	const server = serverStore.servers[settingStore.activeServer];
 
 	return (
-		<SafeAreaView
+		<View
 			style={{
 				...styles.container,
-				backgroundColor: rootStore.isFullscreen ? Colors.black : theme.colors.background
+				...safeAreaPadding,
+				backgroundColor: rootStore.isFullscreen ? Colors.blue : theme.colors.background
 			}}
-			edges={safeAreaEdges}
 		>
 			{Platform.OS === 'ios' && !rootStore.isFullscreen && (
 				<View style={{
@@ -218,7 +223,7 @@ const HomeScreen = () => {
 					message={t('home.errors.invalidServer.description')}
 				/>
 			)}
-		</SafeAreaView>
+		</View>
 	);
 };
 
